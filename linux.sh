@@ -2,9 +2,6 @@
 
 CURL_ARGS='-L'
 
-SALT_VERSION='2017.7.4'
-SALT_VERSION_PY='py2'
-
 ROOT=''
 CONFIG_DIR="${ROOT}/etc/salt"
 MINION_PKI_DIR="${CONFIG_DIR}/pki/minion"
@@ -13,18 +10,18 @@ BOOTSTRAP_HOST='files.routedlogic.net'
 
 MINION_CONFIG_URL="https://${BOOTSTRAP_HOST}/salt/bootstrap/minion"
 MASTER_SIGN_URL="https://${BOOTSTRAP_HOST}/salt/bootstrap/master_sign.pub"
-SALT_PKG_URL="https://repo.saltstack.com/osx/salt-${SALT_VERSION}-${SALT_VERSION_PY}-x86_64.pkg"
 
-# download and install base salt package
-curl ${CURL_ARGS} ${SALT_PKG_URL} -o /tmp/salt.pkg
-installer -pkg /tmp/salt.pkg -target "${ROOT}/"
-rm -fv /tmp/salt.pkg
+SALT_BOOTSTRAP_URL="https://bootstrap.saltstack.com"
+
+curl ${CURL_ARGS} ${SALT_BOOTSTRAP_URL} -o /tmp/install_salt.sh
+sh /tmp/install_salt.sh -P
+rm -fv /tmp/install_salt.sh
 
 # validate package has actually installed
 test -d ${CONFIG_DIR} || exit 1
 
-# stop minion as we need to reconfigure
-launchctl stop com.saltstack.salt.minion
+# ensure the service is stopped while we reconfigure it
+systemctl stop salt-minion.service
 
 # install custom minion config if desired
 if [ "${MINION_CONFIG}x" == "x" ] && [ "${MINION_CONFIG_URL}x" != "x" ] ; then
@@ -50,7 +47,8 @@ else
   touch ${CONFIG_DIR}/grains
 fi
 
-# start salt minion
-launchctl start com.saltstack.salt.minion
+# start salt minion and ensure start on boot
+systemctl enable salt-minion.service
+systemctl restart salt-minion.service
 
 # EOF
