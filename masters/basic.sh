@@ -132,6 +132,7 @@ mkdir -p ${PILLAR_ROOT}
 mkdir -p ${MINION_CACHE}
 mkdir -p ${MASTER_CACHE}
 mkdir -p ${MASTER_PKI_MINIONS_DIR}
+mkdir -p ${MASTER_PKI_MINIONS_DIR}_pre
 
 # ensure the service is stopped while we reconfigure it
 systemctl stop salt-minion.service
