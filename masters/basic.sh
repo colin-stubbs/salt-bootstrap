@@ -103,6 +103,7 @@ MINION_CONFIG_D="${CONFIG_DIR}/minion.d"
 MASTER_CONFIG_D="${CONFIG_DIR}/master.d"
 MINION_PKI_DIR="${CONFIG_DIR}/pki/minion"
 MASTER_PKI_DIR="${CONFIG_DIR}/pki/master"
+MASTER_PKI_MINIONS_DIR="${CONFIG_DIR}/pki/master/minions"
 MINION_CACHE="/var/cache/salt/minion"
 MASTER_CACHE="/var/cache/salt/master"
 
@@ -120,7 +121,7 @@ rm -fv /tmp/install_salt.sh
 test -d ${CONFIG_DIR} || exit 1
 
 # install master package
-yum -y install salt-master
+yum -y install salt-master git python-pygit2
 
 cp ${MINION_CONFIG_FILE} ${MINION_CONFIG_FILE}.orig
 cp ${MASTER_CONFIG_FILE} ${MASTER_CONFIG_FILE}.orig
@@ -130,6 +131,7 @@ mkdir -p ${FILE_ROOT}
 mkdir -p ${PILLAR_ROOT}
 mkdir -p ${MINION_CACHE}
 mkdir -p ${MASTER_CACHE}
+mkdir -p ${MASTER_PKI_MINIONS_DIR}
 
 # ensure the service is stopped while we reconfigure it
 systemctl stop salt-minion.service
